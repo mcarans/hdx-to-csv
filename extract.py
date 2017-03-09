@@ -1,4 +1,5 @@
 import ckanapi
+from os.path import join, expanduser
 import logging
 
 from flatten_json import flatten_json
@@ -8,9 +9,14 @@ from pandas.io.json import json_normalize
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main(admin):
+    apikey = None
+    if admin:
+        with open(join(expanduser('~'), '.hdxkey'), 'rt') as f:
+            apikey = f.read().replace('\n', '')
+
     remoteckan = ckanapi.RemoteCKAN('https://data.humdata.org/',
-                                    apikey=None,
+                                    apikey=apikey,
                                     user_agent='hdx-to-csv')
     df = DataFrame()
     start = 0
@@ -35,4 +41,4 @@ def main():
     df.to_csv('datasets.csv', encoding='utf-8', index=False, date_format='%Y-%m-%d', float_format='%.0f')
 
 if __name__ == "__main__":
-    main()
+    main(False)
